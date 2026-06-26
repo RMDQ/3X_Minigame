@@ -1,167 +1,154 @@
-# Mission 3X — Web Game Implementation Plan
+# Mission 3X — Project Plan
 
-## Overview
+## Current Status ✅
 
-A web-based board game tracker inspired by the Mission 3X game board shown. It faithfully reproduces the 120-tile snaking board with all special tile types, real-time player position tracking, and a two-role access model (Admin / User). No dice logic is built in — the Admin manually advances players.
+The v1 implementation is merged to `main`. The core product is fully functional:
+
+| Feature | Status |
+|---|---|
+| 120-tile boustrophedon board | ✅ |
+| 5 tile types with neon styling | ✅ |
+| START / FINISH end-caps + row arrows | ✅ |
+| Firebase Realtime Database sync | ✅ |
+| User View (read-only, live) | ✅ |
+| Admin View (passphrase-protected) | ✅ |
+| Add / Edit / Remove players | ✅ |
+| Player avatars (initials / emoji / image URL) | ✅ |
+| Move player to any tile | ✅ |
+| Live-editable special tile positions | ✅ |
+| Reset game | ✅ |
+| Graceful offline / demo fallback | ✅ |
+| Legend panel | ✅ |
+| GitHub Pages compatible (zero build) | ✅ |
 
 ---
 
-## Tech Stack
+## Known Issues to Fix
 
-| Layer | Choice | Rationale |
-|---|---|---|
-| Frontend | Vanilla HTML + CSS + JavaScript (single-page, no build step) | Zero-config, instantly deployable everywhere |
-| Real-time sync | Firebase Realtime Database (free Spark plan) | WebSocket-backed, free tier is ample, works from static hosting |
-| Hosting | GitHub Pages (or any static host) | Free, no server needed |
-| Auth (admin) | Simple shared passphrase stored in Firebase + sessionStorage | No user accounts needed; quick for an event setting |
+### 1. Admin session restore after Firebase connects
+**File:** `app.js:608`
+When the page reloads with `sessionStorage.getItem("mission3x_admin") === "1"`, `enterAdminMode()` is called after 100ms. But if Firebase is reachable this time, `isOffline` is still false and write operations will work — but the `startListeners()` call happened before the session restore, so the admin player list won't be populated correctly on restore.
+**Fix:** Ensure `renderAdminPlayerList()` is called after Firebase's initial `players` snapshot fires, not just on `enterAdminMode()`.
 
-> All free. No backend server. The only external dependency is Firebase (CDN-loaded).
+### 2. Dead import
+**File:** `app.js:6`
+`child` is imported from Firebase but never used.
+**Fix:** Remove it.
+
+### 3. Token overflow on shared tiles
+**File:** `app.js:renderTokens()`, `style.css:.token-stack`
+When 3+ players share a tile, tokens overflow the tile boundary.
+**Fix:** Cap visible tokens at 2 and show a `+N` overflow badge.
+
+### 4. No feedback during 4-second login wait
+**File:** `app.js:296`, `index.html` login modal
+The Login button appears frozen while waiting for Firebase timeout.
+**Fix:** Disable the button and show "Connecting…" during the wait.
 
 ---
 
-## Board Specification (from image)
+## Next Steps — Priority Order
 
-### Layout
-- **120 tiles**, numbered 1–120
-- **Snake path**: rows alternate direction (boustrophedon)
-  - Row 1: tiles 1–20 (left → right)
-  - Row 2: tiles 21–40 (right → left, displayed 40…21)
-  - Row 3: tiles 41–60 (left → right)
-  - Row 4: tiles 61–80 (right → left)
-  - Row 5: tiles 81–100 (left → right)
-  - Row 6: tiles 101–120 (right → left)
-- **START** before tile 1, **FINISH** at tile 120
+### Phase A — Firebase Setup & Deployment (Prerequisite)
+One-time tasks the project owner must complete before the site is live.
 
-### Tile Types (from legend)
-| Type | Color | Mechanic |
-|---|---|---|
-| Basic (基础格) | Dark/neutral | No effect, normal stop |
-| Boost (加速格 ») | Green | Jump forward to next Boost tile |
-| Block (阻碍格) | Red | Sent back to previous Block tile |
-| Treasure (宝箱格) | Gold | Draw a Bonus card, receive reward |
-| Challenge (挑战格) | Purple | Must complete challenge to stay; fail → return to pre-roll position |
+- [ ] Create a Firebase project at [console.firebase.google.com](https://console.firebase.google.com)
+- [ ] Enable Realtime Database → Start in test mode
+- [ ] Copy the config object into `firebase-config.js` (replace all `YOUR_*` placeholders)
+- [ ] Set Realtime Database security rules (see below)
+- [ ] Push to GitHub → Settings → Pages → Source: `main` branch, root `/`
+- [ ] Open the live URL → Admin Login → enter your chosen passphrase (auto-saved on first use)
 
-### Special Tile Positions (read from image)
+**Recommended Database Rules:**
+```json
+{
+  "rules": {
+    "adminPass": {
+      ".read": false,
+      ".write": true
+    },
+    "players": {
+      ".read": true,
+      ".write": true
+    },
+    "tileLayout": {
+      ".read": true,
+      ".write": true
+    }
+  }
+}
 ```
-Boost  (»): 6, 14, 27, 36, 48, 55, 63, 71, 86, 95, 105, 117
-Block  (🚧): 18, 32, 50, 76, 91, 111
-Treasure (📦): 8, 30, 43, 53, 70, 89, 99, 109
-Challenge (🏆): 11, 22, 38, 45, 58, 65, 74, 84, 94, 113
-```
-*(Exact positions confirmed from board image; to be fine-tuned during implementation)*
+> Test mode rules (`.write: true`) are fine for a controlled event. Tighten after the event if needed.
 
 ---
 
-## Views
+### Phase B — UX Polish (Recommended before first event use)
 
-### User View (`/` or `?view=user`)
-- Read-only live board
-- Sees all player tokens with names and positions
-- Auto-updates in real time (Firebase listener)
-- No controls visible
+#### B1. Login loading state
+Add a spinner / "Connecting…" label and disable the button while the Firebase passphrase check is in flight (up to 4 seconds).
+- **Files:** `index.html` (spinner in login modal), `app.js:284`
 
-### Admin View (`?view=admin` + passphrase)
-- All User View content PLUS:
-  - **Add Player** — enter player name, choose avatar color, place at START
-  - **Move Player** — select player, enter target tile number (or +/- step)
-  - **Remove Player**
-  - **Reset Game**
-  - **Announce** — optional overlay message pushed to all views
-- Admin session persists in sessionStorage until tab is closed
+#### B2. Quick-step move buttons
+Add `−1` / `+1` / `+5` / `−5` buttons next to the position input in the Move modal so the admin can advance players quickly without typing tile numbers.
+- **Files:** `index.html` (move-modal), `app.js:471`
+
+#### B3. Token overflow cap
+When 3+ players share a tile, show 2 tokens and a `+N` badge instead of overflowing.
+- **Files:** `app.js:renderTokens()`, `style.css`
+
+#### B4. Tile effect tooltips
+On hover over any special tile, show a brief tooltip explaining its effect (supplements the legend).
+- **Files:** `app.js:buildBoard()`, `style.css`
+
+#### B5. Remove dead `child` import
+- **File:** `app.js:6`
 
 ---
 
-## File Structure
+### Phase C — Feature Additions (Optional / Post-Event)
+
+#### C1. Activity log
+A scrollable sidebar panel showing recent moves: `"Alice: tile 32 → 45"`. Written to Firebase `/log` by the admin on each move.
+- **Files:** `index.html`, `app.js`, `style.css`
+
+#### C2. Tile effect automation
+When a player lands on a Boost or Block tile, offer the admin a one-click confirmation to auto-apply the tile's jump (forward to next Boost / back to previous Block).
+- **File:** `app.js` — hook into `moveConfirmBtn`
+
+#### C3. Stronger admin auth
+Replace the shared passphrase with Firebase Anonymous Auth + a server-side admin flag. Prevents access if the passphrase leaks.
+- Requires: Firebase Auth enabled, Security Rules updated, `app.js` auth flow rewritten
+
+#### C4. URL-based view routing
+Support `?admin=1` so admin bookmarks survive tab closes (currently only `sessionStorage`).
+- **File:** `app.js` boot + `enterAdminMode` / `exitAdminMode`
+
+#### C5. Game history snapshots
+Before each Reset, write the current state to `/gameHistory/<timestamp>` so past sessions are preserved in Firebase.
+- **File:** `app.js:resetGameBtn` handler
+
+#### C6. Win animation
+When a player reaches tile 120, trigger a confetti animation on all connected screens via a Firebase `/event` flag.
+- **Files:** Add `canvas-confetti` CDN, `app.js` players listener
+
+---
+
+## File Map
 
 ```
 /
-├── index.html          # Main entry point (both views share one page)
-├── style.css           # All styling — dark sci-fi theme matching Mission 3X
-├── app.js              # Game logic, Firebase sync, view routing
-├── firebase-config.js  # Firebase project credentials (public; safe for client)
-└── PLAN.md             # This file
+├── index.html          — HTML shell, all modal markup, view routing hooks
+├── style.css           — Full styling: CSS variables, tile types, admin panel, modals
+├── app.js              — Board render, Firebase sync, admin auth, player management
+├── firebase-config.js  — Firebase credentials (must be filled in by the owner)
+├── PLAN.md             — This file
+└── README.md           — Setup & usage guide for deployment
 ```
 
----
+## Architecture Notes
 
-## Implementation Checklist
-
-### Phase 1 — Project Scaffold
-- [ ] Create `index.html` with HTML shell, Firebase SDK CDN imports
-- [ ] Create `firebase-config.js` with placeholder config (user fills in their own)
-- [ ] Create `style.css` with CSS variables for the sci-fi color palette
-- [ ] Set up basic routing: detect `?view=admin` query param
-
-### Phase 2 — Board Rendering
-- [ ] Define tile data array (1–120) with type annotations
-- [ ] Render 6 rows × 20 tiles in correct boustrophedon order
-- [ ] Style each tile type (basic, boost, block, treasure, challenge) with neon glow matching the image
-- [ ] Add START and FINISH end-caps
-- [ ] Add legend panel below board
-
-### Phase 3 — Firebase Integration
-- [ ] Define Realtime Database schema:
-  ```json
-  {
-    "players": {
-      "<id>": { "name": "Alice", "color": "#ff00ff", "position": 1 }
-    },
-    "announcement": ""
-  }
-  ```
-- [ ] Implement `onValue` listener — re-render player tokens on any change
-- [ ] Implement write helpers: `addPlayer`, `movePlayer`, `removePlayer`, `resetGame`
-
-### Phase 4 — Player Token Rendering
-- [ ] Render colored avatar circles on the correct tile
-- [ ] Stack tokens when multiple players share a tile
-- [ ] Show player name tooltip/label on hover
-
-### Phase 5 — Admin Panel
-- [ ] Admin login modal (passphrase check against Firebase value)
-- [ ] Add Player form (name + color picker)
-- [ ] Move Player controls (select dropdown + target tile input)
-- [ ] Remove Player button per player
-- [ ] Reset Game button (confirm dialog)
-- [ ] Announcement text push
-
-### Phase 6 — Polish & Responsiveness
-- [ ] Match the dark sci-fi aesthetic: deep navy background, neon cyan/green/purple glows
-- [ ] Tile number overlays in correct corners (matching image)
-- [ ] Tile type icons (>>, 🚫, 📦, 🏆)
-- [ ] Mobile-friendly scaling (CSS transform scale on the board)
-- [ ] Smooth token transition animations when positions update
-- [ ] Announcement overlay banner on all views
-
-### Phase 7 — Deployment
-- [ ] Add `README.md` with setup instructions (create Firebase project, paste config, enable GitHub Pages)
-- [ ] Verify on GitHub Pages
-
----
-
-## Firebase Setup (for end user)
-
-1. Go to [console.firebase.google.com](https://console.firebase.google.com) → New project (free)
-2. Enable **Realtime Database** in test mode
-3. Copy the config object into `firebase-config.js`
-4. Deploy the files to GitHub Pages or any static host
-5. Set the admin passphrase once in the Firebase DB at `/adminPass`
-
----
-
-## Out of Scope
-
-- Dice rolling mechanics (handled outside)
-- Card deck management
-- Player authentication / accounts
-- Mobile app / PWA
-
----
-
-## Open Questions for Approval
-
-1. **Tile positions** — Should I use the exact tile numbers from the image, or do you want to adjust any special tile locations?
-2. **Admin auth** — A shared passphrase is simplest. Is that sufficient, or do you need per-user admin logins?
-3. **Player avatars** — Color circles with initials, or do you want custom icons/images?
-4. **Announcement feature** — Include or skip for now?
-5. **Firebase** — Are you comfortable creating a free Firebase project, or do you prefer a different real-time backend (e.g., Supabase, Ably)?
+- **No build step** — plain ES modules, Firebase SDK from CDN (`gstatic.com`).
+- **Offline mode** — if Firebase config is placeholder or unreachable, the app falls back to local in-memory state. Detected via a 4-second timeout on the admin passphrase read; `isOffline` flag gates all write paths.
+- **Board layout** — CSS Grid (22 cols × 6 rows). Each tile's `gridRow` / `gridColumn` is computed by `tileGridPosition(n)` using the boustrophedon rule (odd rows L→R, even rows R→L).
+- **Token rendering** — `.token-stack` divs are cleared and rebuilt from `players` state on every Firebase update or local state change.
+- **Tile layout** — stored in Firebase at `/tileLayout` as four arrays. Falls back to `DEFAULT_TILES` (hardcoded from the reference image) when no Firebase data exists.

@@ -10,27 +10,23 @@
   --bg-tile-alt:  #091526;
   --border:       #1a3a5c;
   --border-glow:  #1e4a7a;
-
   --cyan:         #00e5ff;
   --cyan-dim:     #007a99;
-  --green:        #00ff88;
+  --green:        #0f8;
   --green-dim:    #007a3d;
-  --red:          #ff2244;
+  --red:          #f24;
   --red-dim:      #7a0f20;
   --gold:         #ffc700;
   --gold-dim:     #7a5e00;
-  --purple:       #cc44ff;
+  --purple:       #c4f;
   --purple-dim:   #5c1a7a;
-
   --text:         #c8dff0;
   --text-dim:     #5a7a99;
-  --text-bright:  #ffffff;
-
+  --text-bright:  #fff;
   --tile-size:    52px;
   --tile-gap:     4px;
   --tile-radius:  6px;
   --token-size:   26px;
-
   --font-main: 'Segoe UI', 'Arial', sans-serif;
   --font-mono: 'Courier New', monospace;
 }
@@ -60,7 +56,7 @@ body {
   background: var(--cyan); color: #000;
   font-weight: 700;
 }
-.btn-primary:hover { background: #33eeff; box-shadow: 0 0 12px var(--cyan); }
+.btn-primary:hover { background: #3ef; box-shadow: 0 0 12px var(--cyan); }
 .btn-ghost {
   background: transparent; color: var(--text);
   border: 1px solid var(--border-glow);
@@ -69,7 +65,7 @@ body {
 .btn-danger {
   background: var(--red); color: #fff; font-weight: 700;
 }
-.btn-danger:hover { background: #ff4466; box-shadow: 0 0 12px var(--red); }
+.btn-danger:hover { background: #f46; box-shadow: 0 0 12px var(--red); }
 .btn-sm { padding: 0.3rem 0.7rem; font-size: 0.8rem; }
 .btn-full { width: 100%; margin-top: 0.6rem; }
 
@@ -81,7 +77,7 @@ body {
   padding: 0.6rem 1.5rem;
   background: var(--bg-panel);
   border-bottom: 1px solid var(--border-glow);
-  box-shadow: 0 0 20px rgba(0,229,255,0.08);
+  box-shadow: 0 0 20px rgb(0 229 255 / 0.08);
   position: sticky; top: 0; z-index: 100;
 }
 .header-title {
@@ -101,8 +97,8 @@ body {
   font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em;
   padding: 0.25rem 0.6rem; border-radius: 4px;
 }
-.user-badge  { background: rgba(0,229,255,0.12); color: var(--cyan); border: 1px solid var(--cyan-dim); }
-.admin-badge { background: rgba(255,199,0,0.12); color: var(--gold); border: 1px solid var(--gold-dim); }
+.user-badge  { background: rgb(0 229 255 / 0.12); color: var(--cyan); border: 1px solid var(--cyan-dim); }
+.admin-badge { background: rgb(255 199 0 / 0.12); color: var(--gold); border: 1px solid var(--gold-dim); }
 
 /* ══════════════════════════════════════════════════════════
    MAIN LAYOUT
@@ -143,8 +139,8 @@ body {
   padding: 8px;
   box-shadow:
     0 0 0 1px #0a2040,
-    0 0 40px rgba(0,229,255,0.12),
-    inset 0 0 60px rgba(0,10,30,0.8);
+    0 0 40px rgb(0 229 255 / 0.12),
+    inset 0 0 60px rgb(0 10 30 / 0.8);
 }
 
 /* ── Tile base ── */
@@ -187,41 +183,41 @@ body {
 .tile-boost {
   background: linear-gradient(135deg, #041a0d 0%, #082a12 100%);
   border-color: var(--green-dim);
-  box-shadow: 0 0 8px rgba(0,255,136,0.2), inset 0 0 12px rgba(0,255,136,0.05);
+  box-shadow: 0 0 8px rgb(0 255 136 / 0.2), inset 0 0 12px rgb(0 255 136 / 0.05);
 }
 .tile-boost .tile-icon { color: var(--green); text-shadow: 0 0 8px var(--green); font-weight: 900; font-size: 1.3rem; }
 .tile-boost .tile-number { color: var(--green); }
-.tile-boost:hover { box-shadow: 0 0 16px rgba(0,255,136,0.4); }
+.tile-boost:hover { box-shadow: 0 0 16px rgb(0 255 136 / 0.4); }
 
 .tile-block {
   background: linear-gradient(135deg, #1a0408 0%, #2a060e 100%);
   border-color: var(--red-dim);
-  box-shadow: 0 0 8px rgba(255,34,68,0.25), inset 0 0 12px rgba(255,34,68,0.06);
+  box-shadow: 0 0 8px rgb(255 34 68 / 0.25), inset 0 0 12px rgb(255 34 68 / 0.06);
 }
 .tile-block .tile-number { color: var(--red); }
-.tile-block:hover { box-shadow: 0 0 16px rgba(255,34,68,0.45); }
+.tile-block:hover { box-shadow: 0 0 16px rgb(255 34 68 / 0.45); }
 
 .tile-treasure {
   background: linear-gradient(135deg, #1a1000 0%, #2a1c00 100%);
   border-color: var(--gold-dim);
-  box-shadow: 0 0 8px rgba(255,199,0,0.2), inset 0 0 12px rgba(255,199,0,0.06);
+  box-shadow: 0 0 8px rgb(255 199 0 / 0.2), inset 0 0 12px rgb(255 199 0 / 0.06);
 }
 .tile-treasure .tile-number { color: var(--gold); }
-.tile-treasure:hover { box-shadow: 0 0 16px rgba(255,199,0,0.4); }
+.tile-treasure:hover { box-shadow: 0 0 16px rgb(255 199 0 / 0.4); }
 
 .tile-challenge {
   background: linear-gradient(135deg, #0e0018 0%, #1a0030 100%);
   border-color: var(--purple-dim);
-  box-shadow: 0 0 8px rgba(204,68,255,0.2), inset 0 0 12px rgba(204,68,255,0.06);
+  box-shadow: 0 0 8px rgb(204 68 255 / 0.2), inset 0 0 12px rgb(204 68 255 / 0.06);
 }
 .tile-challenge .tile-number { color: var(--purple); }
-.tile-challenge:hover { box-shadow: 0 0 16px rgba(204,68,255,0.4); }
+.tile-challenge:hover { box-shadow: 0 0 16px rgb(204 68 255 / 0.4); }
 
 /* ── End caps ── */
 .tile-start, .tile-finish {
   background: linear-gradient(135deg, #001a30, #002a50);
   border-color: var(--cyan);
-  box-shadow: 0 0 14px rgba(0,229,255,0.35), inset 0 0 16px rgba(0,229,255,0.08);
+  box-shadow: 0 0 14px rgb(0 229 255 / 0.35), inset 0 0 16px rgb(0 229 255 / 0.08);
   flex-direction: column;
   gap: 2px;
 }
@@ -268,8 +264,8 @@ body {
   display: flex; align-items: center; justify-content: center;
   font-size: 0.65rem;
   font-weight: 700;
-  border: 2px solid rgba(255,255,255,0.6);
-  box-shadow: 0 0 8px rgba(0,0,0,0.6);
+  border: 2px solid rgb(255 255 255 / 0.6);
+  box-shadow: 0 0 8px rgb(0 0 0 / 0.6);
   overflow: hidden;
   position: relative;
   transition: transform 0.2s;
@@ -287,7 +283,7 @@ body {
   bottom: 110%;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(5,13,26,0.95);
+  background: rgb(5 13 26 / 0.95);
   border: 1px solid var(--cyan-dim);
   color: var(--text-bright);
   font-size: 0.7rem;
@@ -352,8 +348,8 @@ body {
 .wake-text  { color: var(--gold); font-weight: 600; }
 .live-icon  { color: var(--green); }
 .live-text  { color: var(--green); font-weight: 600; }
-.arise-icon { color: #66aaff; }
-.arise-text { color: #66aaff; font-weight: 600; }
+.arise-icon { color: #6af; }
+.arise-text { color: #6af; font-weight: 600; }
 
 /* ══════════════════════════════════════════════════════════
    ADMIN PANEL
@@ -432,7 +428,7 @@ body {
    ══════════════════════════════════════════════════════════ */
 .modal-overlay {
   position: fixed; inset: 0; z-index: 200;
-  background: rgba(2,6,18,0.85);
+  background: rgb(2 6 18 / 0.85);
   backdrop-filter: blur(4px);
   display: flex; align-items: center; justify-content: center;
 }
@@ -443,7 +439,7 @@ body {
   padding: 1.8rem;
   width: 360px;
   max-width: 95vw;
-  box-shadow: 0 0 40px rgba(0,229,255,0.15);
+  box-shadow: 0 0 40px rgb(0 229 255 / 0.15);
   display: flex; flex-direction: column; gap: 0.8rem;
 }
 .modal h2 {
@@ -486,13 +482,14 @@ body {
 /* ══════════════════════════════════════════════════════════
    RESPONSIVE SCALING
    ══════════════════════════════════════════════════════════ */
-@media (max-width: 900px) {
+@media (width <= 900px) {
   .main-layout { flex-direction: column; }
   .admin-panel { width: 100%; min-width: unset; border-left: none; border-top: 1px solid var(--border-glow); }
   :root { --tile-size: 40px; --tile-gap: 3px; --token-size: 20px; }
   .tile-number { font-size: 0.5rem; }
 }
-@media (max-width: 600px) {
+
+@media (width <= 600px) {
   :root { --tile-size: 30px; --tile-gap: 2px; --token-size: 16px; }
   .tile-icon { font-size: 0.85rem; }
   .legend { flex-direction: column; }

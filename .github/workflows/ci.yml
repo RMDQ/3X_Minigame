@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  lint:
+    name: Code quality checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint JavaScript (ESLint)
+        run: npm run lint:js
+
+      - name: Lint CSS (Stylelint)
+        run: npm run lint:css
+
+      - name: Lint HTML (HTMLHint)
+        run: npm run lint:html
+
+  validate-pr-description:
+    name: PR description check
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Check PR body is not empty
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          if [ -z "$PR_BODY" ] || [ ${#PR_BODY} -lt 50 ]; then
+            echo "❌ PR description is missing or too short (min 50 chars)."
+            echo "   Please fill in the pull_request_template.md sections."
+            exit 1
+          fi
+          echo "✅ PR description looks good."
+
+      - name: Check required sections are present
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          MISSING=()
+          echo "$PR_BODY" | grep -q "## What" || MISSING+=("'## What'")
+          echo "$PR_BODY" | grep -q "## Why" || MISSING+=("'## Why'")
+          echo "$PR_BODY" | grep -q "## Test" || MISSING+=("'## Test'")
+          if [ ${#MISSING[@]} -gt 0 ]; then
+            echo "❌ Missing required sections: ${MISSING[*]}"
+            exit 1
+          fi
+          echo "✅ All required PR sections present."

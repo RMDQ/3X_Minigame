@@ -1,0 +1,27 @@
+{
+  "extends": ["stylelint-config-standard"],
+  "rules": {
+    "color-no-invalid-hex":                  true,
+    "declaration-block-no-duplicate-properties": true,
+    "no-duplicate-selectors":                true,
+
+    "color-named":                           "never",
+    "shorthand-property-no-redundant-values": true,
+    "alpha-value-notation":                  "number",
+
+    "selector-class-pattern": [
+      "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+      { "message": "Class names must be kebab-case" }
+    ],
+
+    "custom-property-pattern": [
+      "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+      { "message": "CSS variables must be kebab-case" }
+    ],
+
+    "comment-empty-line-before":               null,
+    "rule-empty-line-before":                  null,
+    "value-keyword-case":                      null,
+    "declaration-block-single-line-max-declarations": null
+  }
+}

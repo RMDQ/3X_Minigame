@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════════════════════════
 
 import { initializeApp }        from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, set, get, update, remove, onValue, child }
+import { getDatabase, ref, set, get, update, remove, onValue }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 // ── Init Firebase ──────────────────────────────────────────
@@ -94,10 +94,10 @@ const addPlayerBtn  = document.getElementById("add-player-btn");
 // ══════════════════════════════════════════════════════════
 
 function getTileType(num) {
-  if (tileLayout.boost.includes(num))     return "boost";
-  if (tileLayout.block.includes(num))     return "block";
-  if (tileLayout.treasure.includes(num))  return "treasure";
-  if (tileLayout.challenge.includes(num)) return "challenge";
+  if (tileLayout.boost.includes(num))     {return "boost";}
+  if (tileLayout.block.includes(num))     {return "block";}
+  if (tileLayout.treasure.includes(num))  {return "treasure";}
+  if (tileLayout.challenge.includes(num)) {return "challenge";}
   return "basic";
 }
 
@@ -163,10 +163,10 @@ function buildBoard() {
     el.dataset.tile = n;
 
     let iconHtml = "";
-    if (type === "boost")     iconHtml = `<span class="tile-icon">»</span>`;
-    if (type === "block")     iconHtml = `<span class="tile-icon">🚧</span>`;
-    if (type === "treasure")  iconHtml = `<span class="tile-icon">📦</span>`;
-    if (type === "challenge") iconHtml = `<span class="tile-icon">🏆</span>`;
+    if (type === "boost")     {iconHtml = `<span class="tile-icon">»</span>`;}
+    if (type === "block")     {iconHtml = `<span class="tile-icon">🚧</span>`;}
+    if (type === "treasure")  {iconHtml = `<span class="tile-icon">📦</span>`;}
+    if (type === "challenge") {iconHtml = `<span class="tile-icon">🏆</span>`;}
 
     el.innerHTML = `<span class="tile-number">${n}</span>${iconHtml}<div class="token-stack"></div>`;
     place(el, row, col);
@@ -187,15 +187,15 @@ function renderTokens() {
   const byTile = {};
   Object.entries(players).forEach(([id, p]) => {
     const pos = p.position ?? 1;
-    if (!byTile[pos]) byTile[pos] = [];
+    if (!byTile[pos]) {byTile[pos] = [];}
     byTile[pos].push({ id, ...p });
   });
 
   Object.entries(byTile).forEach(([pos, list]) => {
     const tileEl = boardEl.querySelector(`[data-tile="${pos}"]`);
-    if (!tileEl) return;
+    if (!tileEl) {return;}
     const stack = tileEl.querySelector(".token-stack");
-    if (list.length > 1) stack.classList.add("stacked");
+    if (list.length > 1) {stack.classList.add("stacked");}
 
     list.forEach(p => {
       const token = document.createElement("div");
@@ -210,7 +210,7 @@ function renderTokens() {
       } else {
         inner = initials(p.name);
       }
-      token.innerHTML = inner + `<div class="token-tooltip">${escapeHtml(p.name)} · Tile ${pos}</div>`;
+      token.innerHTML = `${inner  }<div class="token-tooltip">${escapeHtml(p.name)} · Tile ${pos}</div>`;
       stack.appendChild(token);
     });
   });
@@ -221,13 +221,13 @@ function renderTokens() {
 // ══════════════════════════════════════════════════════════
 
 function startListeners() {
-  if (!db || isOffline) return;
+  if (!db || isOffline) {return;}
 
   // Players
   onValue(ref(db, "players"), snap => {
     players = snap.val() ?? {};
     renderTokens();
-    if (isAdmin) renderAdminPlayerList();
+    if (isAdmin) {renderAdminPlayerList();}
   });
 
   // Tile layout — only rebuild when Firebase returns real data
@@ -241,7 +241,7 @@ function startListeners() {
         challenge: data.challenge ?? DEFAULT_TILES.challenge,
       };
       buildBoard();
-      if (isAdmin) populateTileEditor();
+      if (isAdmin) {populateTileEditor();}
     }
   });
 }
@@ -283,7 +283,7 @@ loginCancelBtn.addEventListener("click", () => loginModal.classList.add("hidden"
 
 loginConfirmBtn.addEventListener("click", async () => {
   const pass = passphraseInput.value.trim();
-  if (!pass) return;
+  if (!pass) {return;}
 
   if (!db) {
     loginModal.classList.add("hidden");
@@ -315,13 +315,13 @@ loginConfirmBtn.addEventListener("click", async () => {
       loginModal.classList.add("hidden");
       enterAdminMode();
     } else {
-      loginError.textContent = "Firebase error: " + e.message;
+      loginError.textContent = `Firebase error: ${  e.message}`;
       loginError.classList.remove("hidden");
     }
   }
 });
 
-passphraseInput.addEventListener("keydown", e => { if (e.key === "Enter") loginConfirmBtn.click(); });
+passphraseInput.addEventListener("keydown", e => { if (e.key === "Enter") {loginConfirmBtn.click();} });
 adminLogoutBtn.addEventListener("click", exitAdminMode);
 
 // ══════════════════════════════════════════════════════════
@@ -366,9 +366,9 @@ function renderAdminPlayerList() {
     btn.addEventListener("click", () => {
       const id = btn.dataset.id;
       const action = btn.dataset.action;
-      if (action === "move")   openMoveModal(id);
-      if (action === "edit")   openPlayerModal(id);
-      if (action === "delete") openDeleteModal(id);
+      if (action === "move")   {openMoveModal(id);}
+      if (action === "edit")   {openPlayerModal(id);}
+      if (action === "delete") {openDeleteModal(id);}
     });
   });
 }
@@ -449,12 +449,12 @@ playerConfirmBtn.addEventListener("click", async () => {
     if (editingPlayerId) {
       await update(ref(db, `players/${editingPlayerId}`), data);
     } else {
-      const id = "p_" + Date.now();
+      const id = `p_${  Date.now()}`;
       await set(ref(db, `players/${id}`), data);
     }
   } else {
     // Offline/demo mode — update local state directly
-    const id = editingPlayerId ?? ("p_" + Date.now());
+    const id = editingPlayerId ?? (`p_${  Date.now()}`);
     players[id] = data;
     renderTokens();
     renderAdminPlayerList();
@@ -462,7 +462,7 @@ playerConfirmBtn.addEventListener("click", async () => {
   playerModal.classList.add("hidden");
 });
 
-playerNameInput.addEventListener("keydown", e => { if (e.key === "Enter") playerConfirmBtn.click(); });
+playerNameInput.addEventListener("keydown", e => { if (e.key === "Enter") {playerConfirmBtn.click();} });
 
 // ══════════════════════════════════════════════════════════
 //  MOVE MODAL
@@ -484,14 +484,14 @@ moveConfirmBtn.addEventListener("click", async () => {
   if (db && !isOffline) {
     await update(ref(db, `players/${movingPlayerId}`), { position: pos });
   } else {
-    if (players[movingPlayerId]) players[movingPlayerId].position = pos;
+    if (players[movingPlayerId]) {players[movingPlayerId].position = pos;}
     renderTokens();
     renderAdminPlayerList();
   }
   moveModal.classList.add("hidden");
 });
 
-movePosInput.addEventListener("keydown", e => { if (e.key === "Enter") moveConfirmBtn.click(); });
+movePosInput.addEventListener("keydown", e => { if (e.key === "Enter") {moveConfirmBtn.click();} });
 
 // ══════════════════════════════════════════════════════════
 //  DELETE MODAL
@@ -553,7 +553,7 @@ saveTilesBtn.addEventListener("click", async () => {
 // ══════════════════════════════════════════════════════════
 
 resetGameBtn.addEventListener("click", async () => {
-  if (!confirm("Reset the game? This will remove ALL players and restore the default tile layout.")) return;
+  if (!confirm("Reset the game? This will remove ALL players and restore the default tile layout.")) {return;}
   if (db && !isOffline) {
     await set(ref(db, "players"), null);
     await set(ref(db, "tileLayout"), DEFAULT_TILES);
@@ -571,7 +571,7 @@ resetGameBtn.addEventListener("click", async () => {
 // ══════════════════════════════════════════════════════════
 
 function initials(name) {
-  if (!name) return "?";
+  if (!name) {return "?";}
   const words = name.trim().split(/\s+/);
   return words.length > 1
     ? (words[0][0] + words[words.length - 1][0]).toUpperCase()
