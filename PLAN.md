@@ -52,12 +52,12 @@ The Login button appears frozen while waiting for Firebase timeout.
 ### Phase A — Firebase Setup & Deployment (Prerequisite)
 One-time tasks the project owner must complete before the site is live.
 
-- [ ] Create a Firebase project at [console.firebase.google.com](https://console.firebase.google.com)
-- [ ] Enable Realtime Database → Start in test mode
-- [ ] Copy the config object into `firebase-config.js` (replace all `YOUR_*` placeholders)
-- [ ] Set Realtime Database security rules (see below)
-- [ ] Push to GitHub → Settings → Pages → Source: `main` branch, root `/`
-- [ ] Open the live URL → Admin Login → enter your chosen passphrase (auto-saved on first use)
+- [x] Create a Firebase project at [console.firebase.google.com](https://console.firebase.google.com)
+- [x] Enable Realtime Database → Start in test mode
+- [x] Copy the config object into `firebase-config.js` (replace all `YOUR_*` placeholders)
+- [x] Set Realtime Database security rules (see below)
+- [x] Push to GitHub → Settings → Pages → Source: `main` branch, root `/`
+- [x] Open the live URL → Admin Login → enter your chosen passphrase (auto-saved on first use)
 
 **Recommended Database Rules:**
 ```json

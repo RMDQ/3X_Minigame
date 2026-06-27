@@ -12,11 +12,11 @@
 // ─────────────────────────────────────────────────────────
 
 window.FIREBASE_CONFIG = {
-  apiKey:            "YOUR_API_KEY",
-  authDomain:        "YOUR_PROJECT.firebaseapp.com",
-  databaseURL:       "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-  projectId:         "YOUR_PROJECT",
-  storageBucket:     "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId:             "YOUR_APP_ID"
+  apiKey: "AIzaSyAsDcQR60OaJWKPlmLEPBgx8Ne9wiuKB3M",
+  authDomain: "x-minigame.firebaseapp.com",
+  databaseURL: "https://x-minigame-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "x-minigame",
+  storageBucket: "x-minigame.firebasestorage.app",
+  messagingSenderId: "370031369197",
+  appId: "1:370031369197:web:a641f48fbff9aba1e965e4"
 };
