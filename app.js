@@ -197,10 +197,15 @@ function renderTokens() {
     const stack = tileEl.querySelector(".token-stack");
     if (list.length > 1) {stack.classList.add("stacked");}
 
-    list.forEach(p => {
+    const maxVisible = 2;
+    const visibleList = list.slice(0, maxVisible);
+    const overflowList = list.slice(maxVisible);
+
+    visibleList.forEach(p => {
       const token = document.createElement("div");
       token.className = "token";
       token.style.background = p.color || "#00e5ff";
+      token.style.color = contrastColor(p.color || "#00e5ff");
 
       let inner = "";
       if (p.avatarType === "image" && p.avatarValue) {
@@ -210,9 +215,17 @@ function renderTokens() {
       } else {
         inner = initials(p.name);
       }
-      token.innerHTML = `${inner  }<div class="token-tooltip">${escapeHtml(p.name)} · Tile ${pos}</div>`;
+      token.innerHTML = `${inner}<div class="token-tooltip">${escapeHtml(p.name)} · Tile ${pos}</div>`;
       stack.appendChild(token);
     });
+
+    if (overflowList.length > 0) {
+      const overflowToken = document.createElement("div");
+      overflowToken.className = "token token-overflow";
+      const remainingNames = overflowList.map(p => p.name).join(", ");
+      overflowToken.innerHTML = `+${overflowList.length}<div class="token-tooltip">+${overflowList.length} more: ${escapeHtml(remainingNames)}</div>`;
+      stack.appendChild(overflowToken);
+    }
   });
 }
 
@@ -291,6 +304,13 @@ loginConfirmBtn.addEventListener("click", async () => {
     return;
   }
 
+  const originalText = loginConfirmBtn.innerHTML;
+  loginConfirmBtn.disabled = true;
+  loginCancelBtn.disabled = true;
+  passphraseInput.disabled = true;
+  loginConfirmBtn.innerHTML = `<span class="spinner"></span>Connecting...`;
+  loginError.classList.add("hidden");
+
   try {
     // Race the Firebase read against a 4-second timeout
     const snap = await Promise.race([
@@ -315,9 +335,14 @@ loginConfirmBtn.addEventListener("click", async () => {
       loginModal.classList.add("hidden");
       enterAdminMode();
     } else {
-      loginError.textContent = `Firebase error: ${  e.message}`;
+      loginError.textContent = `Firebase error: ${e.message}`;
       loginError.classList.remove("hidden");
     }
+  } finally {
+    loginConfirmBtn.disabled = false;
+    loginCancelBtn.disabled = false;
+    passphraseInput.disabled = false;
+    loginConfirmBtn.innerHTML = originalText;
   }
 });
 
@@ -492,6 +517,16 @@ moveConfirmBtn.addEventListener("click", async () => {
 });
 
 movePosInput.addEventListener("keydown", e => { if (e.key === "Enter") {moveConfirmBtn.click();} });
+
+// Setup quick-step buttons
+document.querySelectorAll(".quick-step-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const step = parseInt(btn.dataset.step) || 0;
+    const currentVal = parseInt(movePosInput.value) || 1;
+    const newVal = Math.max(1, Math.min(120, currentVal + step));
+    movePosInput.value = newVal;
+  });
+});
 
 // ══════════════════════════════════════════════════════════
 //  DELETE MODAL

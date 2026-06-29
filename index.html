@@ -185,7 +185,15 @@
   <div class="modal">
     <h2>Move <span id="move-player-name"></span></h2>
     <label class="modal-label">New Position (1–120)</label>
-    <input id="move-pos-input" class="modal-input" type="number" min="1" max="120" />
+    <div class="move-input-group">
+      <input id="move-pos-input" class="modal-input" type="number" min="1" max="120" />
+      <div class="quick-step-buttons">
+        <button type="button" class="btn btn-ghost quick-step-btn" data-step="-5">-5</button>
+        <button type="button" class="btn btn-ghost quick-step-btn" data-step="-1">-1</button>
+        <button type="button" class="btn btn-ghost quick-step-btn" data-step="1">+1</button>
+        <button type="button" class="btn btn-ghost quick-step-btn" data-step="5">+5</button>
+      </div>
+    </div>
     <div class="modal-actions">
       <button id="move-cancel-btn" class="btn btn-ghost">Cancel</button>
       <button id="move-confirm-btn" class="btn btn-primary">Move</button>
