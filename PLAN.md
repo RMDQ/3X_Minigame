@@ -20,6 +20,10 @@ The v1 implementation is merged to `main`. The core product is fully functional:
 | Graceful offline / demo fallback | ✅ |
 | Legend panel | ✅ |
 | GitHub Pages compatible (zero build) | ✅ |
+| Login loading state (B1) | ✅ |
+| Quick-step move buttons (B2) | ✅ |
+| Token overflow cap (B3) | ✅ |
+| Remove dead child import (B5) | ✅ |
 
 ---
 
@@ -30,17 +34,17 @@ The v1 implementation is merged to `main`. The core product is fully functional:
 When the page reloads with `sessionStorage.getItem("mission3x_admin") === "1"`, `enterAdminMode()` is called after 100ms. But if Firebase is reachable this time, `isOffline` is still false and write operations will work — but the `startListeners()` call happened before the session restore, so the admin player list won't be populated correctly on restore.
 **Fix:** Ensure `renderAdminPlayerList()` is called after Firebase's initial `players` snapshot fires, not just on `enterAdminMode()`.
 
-### 2. Dead import
+### 2. Dead import (Fixed ✅)
 **File:** `app.js:6`
 `child` is imported from Firebase but never used.
 **Fix:** Remove it.
 
-### 3. Token overflow on shared tiles
+### 3. Token overflow on shared tiles (Fixed ✅)
 **File:** `app.js:renderTokens()`, `style.css:.token-stack`
 When 3+ players share a tile, tokens overflow the tile boundary.
 **Fix:** Cap visible tokens at 2 and show a `+N` overflow badge.
 
-### 4. No feedback during 4-second login wait
+### 4. No feedback during 4-second login wait (Fixed ✅)
 **File:** `app.js:296`, `index.html` login modal
 The Login button appears frozen while waiting for Firebase timeout.
 **Fix:** Disable the button and show "Connecting…" during the wait.
@@ -84,15 +88,15 @@ One-time tasks the project owner must complete before the site is live.
 
 ### Phase B — UX Polish (Recommended before first event use)
 
-#### B1. Login loading state
+#### B1. Login loading state ✅
 Add a spinner / "Connecting…" label and disable the button while the Firebase passphrase check is in flight (up to 4 seconds).
 - **Files:** `index.html` (spinner in login modal), `app.js:284`
 
-#### B2. Quick-step move buttons
+#### B2. Quick-step move buttons ✅
 Add `−1` / `+1` / `+5` / `−5` buttons next to the position input in the Move modal so the admin can advance players quickly without typing tile numbers.
 - **Files:** `index.html` (move-modal), `app.js:471`
 
-#### B3. Token overflow cap
+#### B3. Token overflow cap ✅
 When 3+ players share a tile, show 2 tokens and a `+N` badge instead of overflowing.
 - **Files:** `app.js:renderTokens()`, `style.css`
 
@@ -100,7 +104,7 @@ When 3+ players share a tile, show 2 tokens and a `+N` badge instead of overflow
 On hover over any special tile, show a brief tooltip explaining its effect (supplements the legend).
 - **Files:** `app.js:buildBoard()`, `style.css`
 
-#### B5. Remove dead `child` import
+#### B5. Remove dead `child` import ✅
 - **File:** `app.js:6`
 
 ---
