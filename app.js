@@ -2,7 +2,7 @@
 //  Mission 3X — App Logic
 // ═══════════════════════════════════════════════════════════
 
-import { initializeApp }        from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getDatabase, ref, set, get, update, remove, onValue }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
@@ -17,23 +17,23 @@ try {
 
 // ── Default tile layout (from board image) ─────────────────
 const DEFAULT_TILES = {
-  boost:     [6,  14, 27, 36, 48, 55, 63, 71, 86, 95, 105, 117],
-  block:     [18, 32, 50, 76, 91, 111],
-  treasure:  [8,  30, 43, 53, 70, 89, 99, 109],
+  boost: [6, 14, 27, 36, 48, 55, 63, 71, 86, 95, 105, 117],
+  block: [18, 32, 50, 76, 91, 111],
+  treasure: [8, 30, 43, 53, 70, 89, 99, 109],
   challenge: [11, 22, 38, 45, 58, 65, 74, 84, 94, 113],
 };
 
 // ── Avatar color presets ───────────────────────────────────
 const COLOR_PRESETS = [
-  "#00e5ff","#00ff88","#ff2244","#ffc700","#cc44ff",
-  "#ff6600","#ff44aa","#44aaff","#ffffff","#aaffcc",
+  "#00e5ff", "#00ff88", "#ff2244", "#ffc700", "#cc44ff",
+  "#ff6600", "#ff44aa", "#44aaff", "#ffffff", "#aaffcc",
 ];
 
 // ── State ──────────────────────────────────────────────────
-let isAdmin      = false;
-let isOffline    = false; // true when Firebase is unreachable
-let players      = {};     // { id: { name, color, position, avatarType, avatarValue } }
-let tileLayout   = { ...DEFAULT_TILES };
+let isAdmin = false;
+let isOffline = false; // true when Firebase is unreachable
+let players = {};     // { id: { name, color, position, avatarType, avatarValue } }
+let tileLayout = { ...DEFAULT_TILES };
 let editingPlayerId = null; // for add/edit modal
 let movingPlayerId = null;
 let deletingPlayerId = null;
