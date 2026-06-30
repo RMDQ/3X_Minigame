@@ -50,6 +50,11 @@ window.FIREBASE_CONFIG = {
 
 Or just open `index.html` directly in a browser for local use (requires a web server due to ES modules — use VS Code Live Server, `npx serve .`, etc.).
 
+Test:
+```
+npx -y http-server
+```
+
 ### 4. Set the admin passphrase
 
 - Open the site → click **Admin Login** → type any passphrase → Login

@@ -35,69 +35,70 @@ let isOffline    = false; // true when Firebase is unreachable
 let players      = {};     // { id: { name, color, position, avatarType, avatarValue } }
 let tileLayout   = { ...DEFAULT_TILES };
 let editingPlayerId = null; // for add/edit modal
-let movingPlayerId  = null;
+let movingPlayerId = null;
 let deletingPlayerId = null;
 
 // ── DOM refs ───────────────────────────────────────────────
-const boardEl         = document.getElementById("board");
-const adminPanel      = document.getElementById("admin-panel");
-const viewBadge       = document.getElementById("view-badge");
-const adminToggleBtn  = document.getElementById("admin-toggle-btn");
-const adminLogoutBtn  = document.getElementById("admin-logout-btn");
-const playerListEl    = document.getElementById("player-list");
+const boardEl = document.getElementById("board");
+const boardWrapper = document.querySelector(".board-wrapper");
+const adminPanel = document.getElementById("admin-panel");
+const viewBadge = document.getElementById("view-badge");
+const adminToggleBtn = document.getElementById("admin-toggle-btn");
+const adminLogoutBtn = document.getElementById("admin-logout-btn");
+const playerListEl = document.getElementById("player-list");
 
 // Login modal
-const loginModal      = document.getElementById("login-modal");
+const loginModal = document.getElementById("login-modal");
 const passphraseInput = document.getElementById("passphrase-input");
-const loginError      = document.getElementById("login-error");
-const loginCancelBtn  = document.getElementById("login-cancel-btn");
+const loginError = document.getElementById("login-error");
+const loginCancelBtn = document.getElementById("login-cancel-btn");
 const loginConfirmBtn = document.getElementById("login-confirm-btn");
 
 // Player modal
-const playerModal       = document.getElementById("player-modal");
-const playerModalTitle  = document.getElementById("player-modal-title");
-const playerNameInput   = document.getElementById("player-name-input");
-const playerColorInput  = document.getElementById("player-color-input");
-const colorPresetsEl    = document.getElementById("color-presets");
-const playerPosInput    = document.getElementById("player-pos-input");
-const playerCancelBtn   = document.getElementById("player-cancel-btn");
-const playerConfirmBtn  = document.getElementById("player-confirm-btn");
-const avatarEmojiRow    = document.getElementById("avatar-emoji-row");
-const avatarImageRow    = document.getElementById("avatar-image-row");
-const avatarEmojiInput  = document.getElementById("avatar-emoji-input");
-const avatarImageInput  = document.getElementById("avatar-image-input");
+const playerModal = document.getElementById("player-modal");
+const playerModalTitle = document.getElementById("player-modal-title");
+const playerNameInput = document.getElementById("player-name-input");
+const playerColorInput = document.getElementById("player-color-input");
+const colorPresetsEl = document.getElementById("color-presets");
+const playerPosInput = document.getElementById("player-pos-input");
+const playerCancelBtn = document.getElementById("player-cancel-btn");
+const playerConfirmBtn = document.getElementById("player-confirm-btn");
+const avatarEmojiRow = document.getElementById("avatar-emoji-row");
+const avatarImageRow = document.getElementById("avatar-image-row");
+const avatarEmojiInput = document.getElementById("avatar-emoji-input");
+const avatarImageInput = document.getElementById("avatar-image-input");
 
 // Move modal
-const moveModal      = document.getElementById("move-modal");
+const moveModal = document.getElementById("move-modal");
 const movePlayerName = document.getElementById("move-player-name");
-const movePosInput   = document.getElementById("move-pos-input");
-const moveCancelBtn  = document.getElementById("move-cancel-btn");
+const movePosInput = document.getElementById("move-pos-input");
+const moveCancelBtn = document.getElementById("move-cancel-btn");
 const moveConfirmBtn = document.getElementById("move-confirm-btn");
 
 // Delete modal
-const deleteModal      = document.getElementById("delete-modal");
+const deleteModal = document.getElementById("delete-modal");
 const deletePlayerName = document.getElementById("delete-player-name");
-const deleteCancelBtn  = document.getElementById("delete-cancel-btn");
+const deleteCancelBtn = document.getElementById("delete-cancel-btn");
 const deleteConfirmBtn = document.getElementById("delete-confirm-btn");
 
 // Tile editor
-const editBoost     = document.getElementById("edit-boost");
-const editBlock     = document.getElementById("edit-block");
-const editTreasure  = document.getElementById("edit-treasure");
+const editBoost = document.getElementById("edit-boost");
+const editBlock = document.getElementById("edit-block");
+const editTreasure = document.getElementById("edit-treasure");
 const editChallenge = document.getElementById("edit-challenge");
-const saveTilesBtn  = document.getElementById("save-tiles-btn");
-const resetGameBtn  = document.getElementById("reset-game-btn");
-const addPlayerBtn  = document.getElementById("add-player-btn");
+const saveTilesBtn = document.getElementById("save-tiles-btn");
+const resetGameBtn = document.getElementById("reset-game-btn");
+const addPlayerBtn = document.getElementById("add-player-btn");
 
 // ══════════════════════════════════════════════════════════
 //  BOARD RENDERING
 // ══════════════════════════════════════════════════════════
 
 function getTileType(num) {
-  if (tileLayout.boost.includes(num))     {return "boost";}
-  if (tileLayout.block.includes(num))     {return "block";}
-  if (tileLayout.treasure.includes(num))  {return "treasure";}
-  if (tileLayout.challenge.includes(num)) {return "challenge";}
+  if (tileLayout.boost.includes(num)) { return "boost"; }
+  if (tileLayout.block.includes(num)) { return "block"; }
+  if (tileLayout.treasure.includes(num)) { return "treasure"; }
+  if (tileLayout.challenge.includes(num)) { return "challenge"; }
   return "basic";
 }
 
@@ -106,10 +107,10 @@ function getTileType(num) {
 // Row 2 (21-40): R→L → tile 40 at col 2, tile 21 at col 21
 // etc.
 function tileGridPosition(num) {
-  const row    = Math.ceil(num / 20);         // 1-6
+  const row = Math.ceil(num / 20);         // 1-6
   const offset = (num - 1) % 20;             // 0-19 within the row
-  const ltr    = (row % 2 === 1);            // odd rows go left→right
-  const col    = ltr ? offset + 2 : 21 - offset; // grid col (1-indexed; col 1 = start cap, col 22 = end cap for row 1)
+  const ltr = (row % 2 === 1);            // odd rows go left→right
+  const col = ltr ? offset + 2 : 21 - offset; // grid col (1-indexed; col 1 = start cap, col 22 = end cap for row 1)
   return { row, col };
 }
 
@@ -118,7 +119,7 @@ function buildBoard() {
 
   // Helper to place a cell at a specific grid position
   function place(el, row, col) {
-    el.style.gridRow    = row;
+    el.style.gridRow = row;
     el.style.gridColumn = col;
     boardEl.appendChild(el);
   }
@@ -141,9 +142,9 @@ function buildBoard() {
   // using the last or first column of the next row with a styled arrow cell.
   const corners = [
     { row: 1, col: 22, arrow: "↓" },  // end of row 1 (right side)
-    { row: 2, col: 1,  arrow: "↓" },  // end of row 2 (left side)
+    { row: 2, col: 1, arrow: "↓" },  // end of row 2 (left side)
     { row: 3, col: 22, arrow: "↓" },
-    { row: 4, col: 1,  arrow: "↓" },
+    { row: 4, col: 1, arrow: "↓" },
     { row: 5, col: 22, arrow: "↓" },
   ];
   corners.forEach(({ row, col, arrow }) => {
@@ -163,10 +164,10 @@ function buildBoard() {
     el.dataset.tile = n;
 
     let iconHtml = "";
-    if (type === "boost")     {iconHtml = `<span class="tile-icon">»</span>`;}
-    if (type === "block")     {iconHtml = `<span class="tile-icon">🚧</span>`;}
-    if (type === "treasure")  {iconHtml = `<span class="tile-icon">📦</span>`;}
-    if (type === "challenge") {iconHtml = `<span class="tile-icon">🏆</span>`;}
+    if (type === "boost") { iconHtml = `<span class="tile-icon">»</span>`; }
+    if (type === "block") { iconHtml = `<span class="tile-icon">🚧</span>`; }
+    if (type === "treasure") { iconHtml = `<span class="tile-icon">📦</span>`; }
+    if (type === "challenge") { iconHtml = `<span class="tile-icon">🏆</span>`; }
 
     el.innerHTML = `<span class="tile-number">${n}</span>${iconHtml}<div class="token-stack"></div>`;
     place(el, row, col);
@@ -187,15 +188,15 @@ function renderTokens() {
   const byTile = {};
   Object.entries(players).forEach(([id, p]) => {
     const pos = p.position ?? 1;
-    if (!byTile[pos]) {byTile[pos] = [];}
+    if (!byTile[pos]) { byTile[pos] = []; }
     byTile[pos].push({ id, ...p });
   });
 
   Object.entries(byTile).forEach(([pos, list]) => {
     const tileEl = boardEl.querySelector(`[data-tile="${pos}"]`);
-    if (!tileEl) {return;}
+    if (!tileEl) { return; }
     const stack = tileEl.querySelector(".token-stack");
-    if (list.length > 1) {stack.classList.add("stacked");}
+    if (list.length > 1) { stack.classList.add("stacked"); }
 
     const maxVisible = 2;
     const visibleList = list.slice(0, maxVisible);
@@ -234,13 +235,13 @@ function renderTokens() {
 // ══════════════════════════════════════════════════════════
 
 function startListeners() {
-  if (!db || isOffline) {return;}
+  if (!db || isOffline) { return; }
 
   // Players
   onValue(ref(db, "players"), snap => {
     players = snap.val() ?? {};
     renderTokens();
-    if (isAdmin) {renderAdminPlayerList();}
+    if (isAdmin) { renderAdminPlayerList(); }
   });
 
   // Tile layout — only rebuild when Firebase returns real data
@@ -248,13 +249,13 @@ function startListeners() {
     const data = snap.val();
     if (data) {
       tileLayout = {
-        boost:     data.boost     ?? DEFAULT_TILES.boost,
-        block:     data.block     ?? DEFAULT_TILES.block,
-        treasure:  data.treasure  ?? DEFAULT_TILES.treasure,
+        boost: data.boost ?? DEFAULT_TILES.boost,
+        block: data.block ?? DEFAULT_TILES.block,
+        treasure: data.treasure ?? DEFAULT_TILES.treasure,
         challenge: data.challenge ?? DEFAULT_TILES.challenge,
       };
       buildBoard();
-      if (isAdmin) {populateTileEditor();}
+      if (isAdmin) { populateTileEditor(); }
     }
   });
 }
@@ -296,7 +297,7 @@ loginCancelBtn.addEventListener("click", () => loginModal.classList.add("hidden"
 
 loginConfirmBtn.addEventListener("click", async () => {
   const pass = passphraseInput.value.trim();
-  if (!pass) {return;}
+  if (!pass) { return; }
 
   if (!db) {
     loginModal.classList.add("hidden");
@@ -346,7 +347,7 @@ loginConfirmBtn.addEventListener("click", async () => {
   }
 });
 
-passphraseInput.addEventListener("keydown", e => { if (e.key === "Enter") {loginConfirmBtn.click();} });
+passphraseInput.addEventListener("keydown", e => { if (e.key === "Enter") { loginConfirmBtn.click(); } });
 adminLogoutBtn.addEventListener("click", exitAdminMode);
 
 // ══════════════════════════════════════════════════════════
@@ -374,7 +375,7 @@ function renderAdminPlayerList() {
     }
 
     row.innerHTML = `
-      <div class="player-row-token" style="background:${p.color||'#00e5ff'};color:${contrastColor(p.color||'#00e5ff')}">${tokenInner}</div>
+      <div class="player-row-token" style="background:${p.color || '#00e5ff'};color:${contrastColor(p.color || '#00e5ff')}">${tokenInner}</div>
       <div class="player-row-info">
         <div class="player-row-name">${escapeHtml(p.name)}</div>
         <div class="player-row-pos">Tile ${p.position ?? 1}</div>
@@ -391,9 +392,9 @@ function renderAdminPlayerList() {
     btn.addEventListener("click", () => {
       const id = btn.dataset.id;
       const action = btn.dataset.action;
-      if (action === "move")   {openMoveModal(id);}
-      if (action === "edit")   {openPlayerModal(id);}
-      if (action === "delete") {openDeleteModal(id);}
+      if (action === "move") { openMoveModal(id); }
+      if (action === "edit") { openPlayerModal(id); }
+      if (action === "delete") { openDeleteModal(id); }
     });
   });
 }
@@ -426,18 +427,18 @@ function openPlayerModal(id) {
     // Edit mode
     const p = players[id];
     playerModalTitle.textContent = "Edit Player";
-    playerNameInput.value  = p.name ?? "";
+    playerNameInput.value = p.name ?? "";
     playerColorInput.value = p.color ?? "#00e5ff";
-    playerPosInput.value   = p.position ?? 1;
+    playerPosInput.value = p.position ?? 1;
     setAvatarType(p.avatarType ?? "initials");
-    avatarEmojiInput.value = (p.avatarType === "emoji")  ? (p.avatarValue ?? "") : "";
-    avatarImageInput.value = (p.avatarType === "image")  ? (p.avatarValue ?? "") : "";
+    avatarEmojiInput.value = (p.avatarType === "emoji") ? (p.avatarValue ?? "") : "";
+    avatarImageInput.value = (p.avatarType === "image") ? (p.avatarValue ?? "") : "";
   } else {
     // Add mode
     playerModalTitle.textContent = "Add Player";
-    playerNameInput.value  = "";
+    playerNameInput.value = "";
     playerColorInput.value = COLOR_PRESETS[Object.keys(players).length % COLOR_PRESETS.length];
-    playerPosInput.value   = 1;
+    playerPosInput.value = 1;
     setAvatarType("initials");
     avatarEmojiInput.value = "";
     avatarImageInput.value = "";
@@ -461,12 +462,12 @@ playerConfirmBtn.addEventListener("click", async () => {
   const name = playerNameInput.value.trim();
   if (!name) { playerNameInput.focus(); return; }
 
-  const color      = playerColorInput.value;
-  const position   = Math.max(1, Math.min(120, parseInt(playerPosInput.value) || 1));
+  const color = playerColorInput.value;
+  const position = Math.max(1, Math.min(120, parseInt(playerPosInput.value) || 1));
   const avatarType = document.querySelector("input[name='avatar-type']:checked")?.value ?? "initials";
-  const avatarValue = avatarType === "emoji"  ? avatarEmojiInput.value.trim()
-                    : avatarType === "image"  ? avatarImageInput.value.trim()
-                    : "";
+  const avatarValue = avatarType === "emoji" ? avatarEmojiInput.value.trim()
+    : avatarType === "image" ? avatarImageInput.value.trim()
+      : "";
 
   const data = { name, color, position, avatarType, avatarValue };
 
@@ -474,12 +475,12 @@ playerConfirmBtn.addEventListener("click", async () => {
     if (editingPlayerId) {
       await update(ref(db, `players/${editingPlayerId}`), data);
     } else {
-      const id = `p_${  Date.now()}`;
+      const id = `p_${Date.now()}`;
       await set(ref(db, `players/${id}`), data);
     }
   } else {
     // Offline/demo mode — update local state directly
-    const id = editingPlayerId ?? (`p_${  Date.now()}`);
+    const id = editingPlayerId ?? (`p_${Date.now()}`);
     players[id] = data;
     renderTokens();
     renderAdminPlayerList();
@@ -487,7 +488,7 @@ playerConfirmBtn.addEventListener("click", async () => {
   playerModal.classList.add("hidden");
 });
 
-playerNameInput.addEventListener("keydown", e => { if (e.key === "Enter") {playerConfirmBtn.click();} });
+playerNameInput.addEventListener("keydown", e => { if (e.key === "Enter") { playerConfirmBtn.click(); } });
 
 // ══════════════════════════════════════════════════════════
 //  MOVE MODAL
@@ -509,14 +510,14 @@ moveConfirmBtn.addEventListener("click", async () => {
   if (db && !isOffline) {
     await update(ref(db, `players/${movingPlayerId}`), { position: pos });
   } else {
-    if (players[movingPlayerId]) {players[movingPlayerId].position = pos;}
+    if (players[movingPlayerId]) { players[movingPlayerId].position = pos; }
     renderTokens();
     renderAdminPlayerList();
   }
   moveModal.classList.add("hidden");
 });
 
-movePosInput.addEventListener("keydown", e => { if (e.key === "Enter") {moveConfirmBtn.click();} });
+movePosInput.addEventListener("keydown", e => { if (e.key === "Enter") { moveConfirmBtn.click(); } });
 
 // Setup quick-step buttons
 document.querySelectorAll(".quick-step-btn").forEach(btn => {
@@ -556,9 +557,9 @@ deleteConfirmBtn.addEventListener("click", async () => {
 // ══════════════════════════════════════════════════════════
 
 function populateTileEditor() {
-  editBoost.value     = tileLayout.boost.join(", ");
-  editBlock.value     = tileLayout.block.join(", ");
-  editTreasure.value  = tileLayout.treasure.join(", ");
+  editBoost.value = tileLayout.boost.join(", ");
+  editBlock.value = tileLayout.block.join(", ");
+  editTreasure.value = tileLayout.treasure.join(", ");
   editChallenge.value = tileLayout.challenge.join(", ");
 }
 
@@ -570,9 +571,9 @@ function parseNums(str) {
 
 saveTilesBtn.addEventListener("click", async () => {
   const layout = {
-    boost:     parseNums(editBoost.value),
-    block:     parseNums(editBlock.value),
-    treasure:  parseNums(editTreasure.value),
+    boost: parseNums(editBoost.value),
+    block: parseNums(editBlock.value),
+    treasure: parseNums(editTreasure.value),
     challenge: parseNums(editChallenge.value),
   };
   if (db && !isOffline) {
@@ -588,7 +589,7 @@ saveTilesBtn.addEventListener("click", async () => {
 // ══════════════════════════════════════════════════════════
 
 resetGameBtn.addEventListener("click", async () => {
-  if (!confirm("Reset the game? This will remove ALL players and restore the default tile layout.")) {return;}
+  if (!confirm("Reset the game? This will remove ALL players and restore the default tile layout.")) { return; }
   if (db && !isOffline) {
     await set(ref(db, "players"), null);
     await set(ref(db, "tileLayout"), DEFAULT_TILES);
@@ -606,7 +607,7 @@ resetGameBtn.addEventListener("click", async () => {
 // ══════════════════════════════════════════════════════════
 
 function initials(name) {
-  if (!name) {return "?";}
+  if (!name) { return "?"; }
   const words = name.trim().split(/\s+/);
   return words.length > 1
     ? (words[0][0] + words[words.length - 1][0]).toUpperCase()
@@ -615,7 +616,7 @@ function initials(name) {
 
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c =>
-    ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
 function escapeAttr(s) {
@@ -623,11 +624,49 @@ function escapeAttr(s) {
 }
 
 function contrastColor(hex) {
-  const r = parseInt(hex.slice(1,3),16);
-  const g = parseInt(hex.slice(3,5),16);
-  const b = parseInt(hex.slice(5,7),16);
-  return (r*299 + g*587 + b*114) / 1000 > 128 ? "#000" : "#fff";
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return (r * 299 + g * 587 + b * 114) / 1000 > 128 ? "#000" : "#fff";
 }
+
+// ══════════════════════════════════════════════════════════
+//  MOUSE PANNING (Better UI)
+// ══════════════════════════════════════════════════════════
+
+let isDragging = false;
+let startX, startY;
+let scrollLeft, scrollTop;
+boardWrapper.addEventListener("mousedown", (e) => {
+  // Only pan with left click
+  if (e.button !== 0) { return; }
+
+  isDragging = true;
+  boardWrapper.classList.add("grabbing");
+  startX = e.pageX - boardWrapper.offsetLeft;
+  startY = e.pageY - boardWrapper.offsetTop;
+  scrollLeft = boardWrapper.scrollLeft;
+  scrollTop = boardWrapper.scrollTop;
+});
+boardWrapper.addEventListener("mouseleave", () => {
+  isDragging = false;
+  boardWrapper.classList.remove("grabbing");
+});
+boardWrapper.addEventListener("mouseup", () => {
+  isDragging = false;
+  boardWrapper.classList.remove("grabbing");
+});
+boardWrapper.addEventListener("mousemove", (e) => {
+  if (!isDragging) { return; }
+  e.preventDefault();
+  const x = e.pageX - boardWrapper.offsetLeft;
+  const y = e.pageY - boardWrapper.offsetTop;
+  // Speed multiplier (e.g. 1.5 for faster panning)
+  const walkX = (x - startX) * 1.5;
+  const walkY = (y - startY) * 1.5;
+  boardWrapper.scrollLeft = scrollLeft - walkX;
+  boardWrapper.scrollTop = scrollTop - walkY;
+});
 
 // ══════════════════════════════════════════════════════════
 //  BOOT
